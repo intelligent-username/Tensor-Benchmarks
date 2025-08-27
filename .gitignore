@@ -5,3 +5,7 @@ __pycache__/
 *.swo
 bench_report.json
 venv/
+report.log
+report.toc
+report.aux
+report.out
