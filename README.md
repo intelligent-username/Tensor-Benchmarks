@@ -1,5 +1,7 @@
 # Tensor Benchmarking
 
+<img src="img.png" alt="Tensor Benchmarking" width="300" height="300">
+
 Which framework (implementation) is most efficient for doing tensor arithmetic? This project explores that question through unit testing. Many features have been implemented to "even-out the playing field" (i.e. the C program would be faster since C is a compiled language, so that is controlled for, or Vanilla Python would be faster than the libraries for smaller operations due to overhead, which is also (mostly) controlled for). The goal is to specifically test the speed of mathematical operations.
 
 ## Table of Contents

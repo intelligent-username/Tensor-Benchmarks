@@ -55,22 +55,7 @@
 \renewcommand{\arraystretch}{1.3} % vertical padding
 
 % ---------- REPLACE 'skipped' WITH BLANK ----------
-\pgfplotstableset{
-    skip dash/.style={
-        postproc cell content/.append code={
-            \edef\temp{\pgfplotstablecellcontent}%
-            \ifx\temp\skipped
-                \pgfkeysalso{@cell content={--}}
-            \fi
-        }
-    },
-    % automatically apply skip-dash to all numeric columns
-    every column/.style={
-        /pgfplots/table/column type/.code={
-            \pgfkeysalso{skip dash}
-        }
-    }
-}
+% Use pgfplotstable's built-in string replace feature in the table call below.
 
 \begin{document}
 
@@ -233,23 +218,35 @@ Table 1 aggregates the median execution times for each operation type and tensor
   columns/Vanilla/.style={column type=d{1.3e1}},
   % styling
   every head row/.style={before row=\toprule, after row=\midrule},
+\pgfplotstabletypeset[
+  col sep=comma,
+  string type,
+  header=has colnames,
+  % string columns
+  columns/Op/.style={string type},
+  columns/Shape A/.style={string type},
+  columns/Shape B/.style={string type},
+  % numeric columns (S-type) will automatically have skip-dash
+  columns/C/.style={
+    column type=d{1.3e1},
+    string replace={skipped}{--}
+  },
+  columns/NumPy/.style={
+    column type=d{1.3e1},
+    string replace={skipped}{--}
+  },
+  columns/PyTorch/.style={
+    column type=d{1.3e1},
+    string replace={skipped}{--}
+  },
+  columns/Vanilla/.style={
+    column type=d{1.3e1},
+    string replace={skipped}{--}
+  },
+  % styling
+  every head row/.style={before row=\toprule, after row=\midrule},
   every last row/.style={after row=\bottomrule}
 ]{results/table/aggregate_table.csv}
-}
-\caption{Aggregate performance results across all implementations and test cases. Times are reported in seconds using median execution time. Skipped entries indicate computationally infeasible cases.}
-
-\begin{small}
-	*\textit{Acronyms}: \hspace{0.5cm}
-	\textbf{ADD} = Addition, \hspace{0.5cm} \textbf{MM} = Matrix Multiplication, \hspace{0.5cm} \\ 
-	\textbf{SCAL} = Scalar Multiply, \hspace{0.5cm} \textbf{DOT} = Dot Product, \hspace{0.5cm} \textbf{BMM} = Batched Matrix Multiplication.
-\end{small}
-\end{table}
-
-\section{Discussion}
-\subsection{Interpretation of Results}
-From these results, we understand the importance of using the correct tool for the correct workload. Small, frequent operations benefit from lower-level or lower-overhead paths, especially pre-compiled ones like those in \texttt{C}. As the computations get larger, they start to justify library dispatch costs. Warmups and batched execution materially improve timing stability and should be retained for reproducibility. Skipping extreme cases in \texttt{C} and Vanilla \texttt{Python} keeps total runtime reasonable without obscuring trends. Practitioners should calibrate thresholds and runs to their own machines for decision-grade comparisons. Given the magnitude of the differences and the sample sizes used for running these tests, it would be reasonable to expect similar trends in other environments.
-
-\subsection{Limitations}
 The current setup does not collect memory usage, hardware counters, or threading details, which limits multi-factor analysis. Library backends and \textbf{BLAS} configurations may differ across systems, which would introduce variability not controlled by the runner. The \texttt{C} timer’s granularity and OS scheduling can affect microsecond-scale measurements, especially on very fast kernels. GPU availability and configuration are environment-dependent and may change the relative standings.
 
 \subsection{Implications}
